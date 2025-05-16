@@ -1,0 +1,20 @@
+Diagnostics:
+  ClangTidy:
+    Add:
+      [
+        modernize*,
+        readability*,
+        bugprone*,
+        llvm-*,
+        portability*,
+        clang-analyzer-*,
+      ]
+    Remove:
+      [
+        modernize-use-trailing-return-type,
+        bugprone-easily-swappable-parameters,
+        modernize-use-using,
+        readability-identifier-length,
+        llvm-include-order,
+        readability-magic-numbers,
+      ]

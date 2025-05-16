@@ -72,7 +72,7 @@ UtilStatus util_make_call(const char *domain, const char *user,
         cfg.id = pj_str(cfg_id);
         cfg.reg_uri = pj_str(reg_uri);
         cfg.cred_count = 1;
-        cfg.cred_info[0].realm = pj_str("sip.twilio.com");
+        cfg.cred_info[0].realm = pj_str("*");
         cfg.cred_info[0].scheme = pj_str("digest");
         cfg.cred_info[0].username = pj_str(user);
         cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;

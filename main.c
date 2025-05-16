@@ -1,3 +1,5 @@
+#include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #define RAYGUI_IMPLEMENTATION
 
@@ -108,15 +110,15 @@ int main() {
         }
 
         int color_brightness = 0xff;
-        int color = 0x000000ff;
+        uint32_t color = 0x000000ff;
         char *call_text;
         if (call_state == UTIL_CALL_STATE_NONE) {
-            color_brightness = sinf((float)GetTime() * 2) * 100 + 155;
+            color_brightness = (int)(sinhf((float)GetTime() * 2) * 100 + 155);
             color |= 0xa0a0a000;
             call_text = "waiting";
         }
         if (call_state == UTIL_CALL_STATE_CALLING) {
-            color_brightness = sinf((float)GetTime() * 2) * 100 + 155;
+            color_brightness = (int)(sinf((float)GetTime() * 2) * 100 + 155);
             color |= color_brightness << (2 * 4 * 2);
             color |= color_brightness << (2 * 4 * 3);
             call_text = "calling";

@@ -6,3 +6,5 @@ build:
 run:
     source .env && ./siphone
 
+build-dev:
+    bear -- just build
