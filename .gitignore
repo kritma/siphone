@@ -3,3 +3,4 @@ compile_commands.json
 .cache
 .env
 .DS_Store
+ice_servers.json

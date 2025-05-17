@@ -1,6 +1,11 @@
 #include "util.h"
+#include "pj/log.h"
+#include "pj/string.h"
+#include "pj/types.h"
 #include <pjsua-lib/pjsua.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static void on_call_state(pjsua_call_id call_id, pjsip_event *e) {
     pjsua_call_info ci;
@@ -77,6 +82,8 @@ UtilStatus util_make_call(const char *domain, const char *user,
         cfg.cred_info[0].username = pj_str(user);
         cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
         cfg.cred_info[0].data = pj_str(password);
+        cfg.allow_sdp_nat_rewrite = PJ_TRUE;
+        cfg.allow_contact_rewrite = PJ_TRUE;
 
         status = pjsua_acc_add(&cfg, PJ_TRUE, &acc_id);
         if (status != PJ_SUCCESS) {
@@ -121,7 +128,42 @@ UtilStatus util_init(int log_level, char *errmsg, int bufsize) {
         pjsua_logging_config_default(&log_cfg);
         log_cfg.console_level = log_level;
 
-        status = pjsua_init(&cfg, &log_cfg, NULL);
+        pjsua_media_config media_cfg;
+        pjsua_media_config_default(&media_cfg);
+        media_cfg.enable_ice = PJ_TRUE;
+
+        char *stun_server = getenv("STUN_SERVER");
+        if (stun_server && strlen(stun_server)) {
+            cfg.stun_srv_cnt = 1; // Number of STUN servers
+            cfg.stun_srv[0] = pj_str(stun_server);
+            PJ_LOG(1, (__FILE__, "STUN configured"));
+        } else {
+            PJ_LOG(1, (__FILE__, "No STUN config provided"));
+        }
+
+        char *turn_server = getenv("TURN_SERVER");
+        char *turn_username = getenv("TURN_USERNAME");
+        char *turn_password = getenv("TURN_USERNAME");
+
+        if (turn_server && strlen(turn_server) && turn_username &&
+            strlen(turn_username) && turn_password && strlen(turn_password)) {
+            media_cfg.enable_turn = PJ_TRUE;
+            media_cfg.turn_server = pj_str(turn_server);
+            media_cfg.turn_auth_cred.type = PJ_STUN_AUTH_CRED_STATIC;
+            media_cfg.turn_conn_type = PJ_TURN_TP_UDP;
+            media_cfg.turn_auth_cred.data.static_cred.username =
+                pj_str(turn_server);
+            media_cfg.turn_auth_cred.data.static_cred.data_type =
+                PJ_STUN_PASSWD_PLAIN;
+            media_cfg.turn_auth_cred.data.static_cred.data =
+                pj_str(turn_server);
+            media_cfg.turn_auth_cred.data.static_cred.realm = pj_str("*");
+            PJ_LOG(1, (__FILE__, "TURN configured"));
+        } else {
+            PJ_LOG(1, (__FILE__, "No TURN config provided"));
+        }
+
+        status = pjsua_init(&cfg, &log_cfg, &media_cfg);
         if (status != PJ_SUCCESS) {
             char msg[100] = {};
             pj_strerror(status, msg, 100);

@@ -4,7 +4,7 @@ build:
     clang main.c util.c {{args}} -o siphone
 
 run:
-    source .env && ./siphone
+    just build && source .env && ./siphone
 
 build-dev:
     bear -- just build
